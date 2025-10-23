@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,3 +6,50 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+    id        Int       @id @default(autoincrement())
+    name      String
+    email     String    @unique
+    password  String
+    role      Role      @default(USER)
+    expenses  Expense[]
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+}
+
+enum Role {
+    USER
+    ADMIN
+}
+
+model Expense {
+    id        Int      @id @default(autoincrement())
+    title     String
+    amount    String
+    category  Category
+    type      Type
+    note      String?
+    isLarge   Boolean  @default(false)
+    userId    Int
+    user      User     @relation(fields: [userId], references: [id])
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+enum Category {
+    FOOD
+    TRANSPORTATION
+    UTILITIES
+    ENTERTAINMENT
+    HEALTHCARE
+    EDUCATION
+    PERSONAL_CARE
+    MISCELLANEOUS
+}
+
+enum Type {
+    INCOME
+    EXPENSE
+}
+

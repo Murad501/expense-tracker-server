@@ -1,9 +1,15 @@
-model User {
-    id        Int      @id @default(autoincrement())
-    name      String
-    email     String   @unique
-    password  String
-    expenses     Expense[]
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-}
+// model User {
+//     id        Int       @id @default(autoincrement())
+//     name      String
+//     email     String    @unique
+//     password  String
+//     role      Role      @default(USER)
+//     expenses  Expense[]
+//     createdAt DateTime  @default(now())
+//     updatedAt DateTime  @updatedAt
+// }
+
+// enum Role {
+//     USER
+//     ADMIN
+// }
