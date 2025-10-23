@@ -2,9 +2,12 @@ import { Prisma } from "@prisma/client";
 import ApiError from "../../errors/ApiError";
 import { prisma } from "../../shared/prisma";
 import httpStatus from "http-status";
-import { IExpenseFilter } from "./expense.interface";
+import { IExpenseFilter, IExpenseType } from "./expense.interface";
 import { IOptions, paginationHelper } from "../../helper/paginationHelper";
-import { expenseSearchableFields } from "./expense.constant";
+import {
+  expenseSearchableFields,
+  updatableExpenseFields,
+} from "./expense.constant";
 
 const create = async (payload: Prisma.ExpenseCreateInput) => {
   if (payload.type === "EXPENSE" && payload.amount > 5000) {
@@ -110,9 +113,50 @@ const summary = async (userId: number) => {
     balanceStatus: totalIncome >= totalExpense ? "Positive" : "Negative",
   };
 };
+const deleteOne = async (id: number, userId: number) => {
+  const expense = await prisma.expense.delete({
+    where: { id, userId: userId },
+  });
+  if (!expense) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Failed to delete expense");
+  }
+  return expense;
+};
+const updateOne = async (
+  payload: {
+    amount?: number;
+    type?: IExpenseType;
+    note?: string;
+  },
+  id: number,
+  userId: number
+) => {
+  const data = Object.fromEntries(
+    Object.entries(payload).filter(
+      ([key, value]) =>
+        updatableExpenseFields.includes(key) && value !== undefined
+    )
+  );
+
+  if (data.type === "EXPENSE" && data.amount && Number(data.amount) > 5000) {
+    (data as any).isLarge = true;
+  } else {
+    (data as any).isLarge = false;
+  }
+  const expense = await prisma.expense.update({
+    where: { id, userId: userId },
+    data,
+  });
+  if (!expense) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Failed to update expense");
+  }
+  return expense;
+};
 
 export const ExpenseService = {
   create,
   getAll,
+  deleteOne,
+  updateOne,
   summary,
 };
