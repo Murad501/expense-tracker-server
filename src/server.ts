@@ -1,12 +1,22 @@
 import http, { Server } from "http";
 import app from "./app";
 import dotenv from "dotenv";
+import { prisma } from "./shared/prisma";
 
 
 dotenv.config();
 
 let server: Server | null = null;
 
+async function connectToDatabase() {
+  try{
+    await prisma.$connect();
+    console.log("✅ Connected to the database.");
+  }catch(error){
+    console.error("❌ Database connection error:", error);
+    process.exit(1);
+  }
+}
 
 async function startServer() {
   try {
@@ -61,4 +71,5 @@ function handleProcessEvents() {
 
 // Start the application
 startServer();
+connectToDatabase();
 
