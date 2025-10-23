@@ -89,8 +89,30 @@ const getAll = async (
     data: result,
   };
 };
+const summary = async (userId: number) => {
+  const [incomeSum, expenseSum] = await Promise.all([
+    prisma.expense.aggregate({
+      where: { type: "INCOME", userId },
+      _sum: { amount: true },
+    }),
+    prisma.expense.aggregate({
+      where: { type: "EXPENSE", userId },
+      _sum: { amount: true },
+    }),
+  ]);
+
+  const totalIncome = incomeSum._sum.amount || 0;
+  const totalExpense = expenseSum._sum.amount || 0;
+  return {
+    totalIncome,
+    totalExpense,
+    balance: totalIncome - totalExpense,
+    balanceStatus: totalIncome >= totalExpense ? "Positive" : "Negative",
+  };
+};
 
 export const ExpenseService = {
   create,
   getAll,
+  summary,
 };

@@ -6,5 +6,6 @@ const router = express.Router();
 
 router.post("/", auth(), ExpenseController.create);
 router.get("/", auth(), ExpenseController.getAll);
+router.get("/summary", auth(), ExpenseController.summary);
 
 export const expenseRoutes = router;

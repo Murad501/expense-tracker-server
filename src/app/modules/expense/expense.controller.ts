@@ -41,7 +41,7 @@ const getAll = catchAsync(
     }
 
     const filters = pick(req.query, expenseFilterableFields);
-    
+
     const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
 
     const result = await ExpenseService.getAll(filters, options, user.id);
@@ -56,7 +56,29 @@ const getAll = catchAsync(
   }
 );
 
+const summary = catchAsync(
+  async (req: Request & { user?: IJWTPayload }, res: Response) => {
+    const userData = req.user;
+    const user = await UserService.getByEmail(userData?.email || "");
+
+    if (!user) {
+      throw new ApiError(httpStatus.UNAUTHORIZED, "Unauthorized User");
+    }
+
+    const result = await ExpenseService.summary(user.id);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Summary retrieval successfully",
+
+      data: result,
+    });
+  }
+);
+
 export const ExpenseController = {
   getAll,
   create,
+  summary,
 };
