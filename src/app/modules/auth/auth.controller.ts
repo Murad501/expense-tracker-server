@@ -29,7 +29,35 @@ const login = catchAsync(async (req: Request, res: Response) => {
     },
   });
 });
+const register = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthService.register(req.body);
+  const { accessToken, refreshToken, data } = result;
+
+  res.cookie("accessToken", accessToken, {
+    secure: true,
+    httpOnly: true,
+    sameSite: "none",
+    maxAge: 1000 * 60 * 60,
+  });
+  res.cookie("refreshToken", refreshToken, {
+    secure: true,
+    httpOnly: true,
+    sameSite: "none",
+    maxAge: 1000 * 60 * 60 * 24 * 90,
+  });
+
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: "User created in successfully!",
+    data: {
+      data,
+      accessToken,
+    },
+  });
+});
 
 export const AuthController = {
   login,
+  register,
 };
