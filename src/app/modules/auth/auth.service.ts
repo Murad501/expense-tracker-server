@@ -6,9 +6,15 @@ import bcrypt from "bcryptjs";
 import { jwtHelper } from "../../helper/jwtHelper";
 import { Secret } from "jsonwebtoken";
 import config from "../../../config";
-import { Prisma, User } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 const login = async (payload: LoginPayload) => {
+  if (!payload.email || !payload.password) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Email and password are required"
+    );
+  }
   const user = await prisma.user.findUnique({
     where: {
       email: payload.email,
@@ -41,6 +47,12 @@ const login = async (payload: LoginPayload) => {
   };
 };
 const register = async (payload: Prisma.UserCreateInput) => {
+  if (!payload.email || !payload.password || !payload.name) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Name, email and password are required"
+    );
+  }
   const hashPassword = await bcrypt.hash(payload.password, 10);
   const user = await prisma.user.create({
     data: {
@@ -50,7 +62,7 @@ const register = async (payload: Prisma.UserCreateInput) => {
     },
   });
 
-  if(!user){
+  if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Failed to create user");
   }
 

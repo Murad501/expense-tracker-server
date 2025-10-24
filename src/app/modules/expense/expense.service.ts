@@ -13,7 +13,7 @@ const create = async (payload: Prisma.ExpenseCreateInput) => {
   if (payload.type === "EXPENSE" && payload.amount > 5000) {
     payload.isLarge = true;
   } else {
-    payload.isLarge = undefined;
+    payload.isLarge = false;
   }
   const expense = await prisma.expense.create({
     data: payload,
