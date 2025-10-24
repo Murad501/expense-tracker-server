@@ -7,6 +7,7 @@ export const expenseFilterableFields: string[] = [
 ];
 
 export const updatableExpenseFields: string[] = [
+    'title',
     'amount',
     'type',
     'note',

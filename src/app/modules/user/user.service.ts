@@ -8,6 +8,8 @@ const getByEmail = async (email: string) => {
       email,
     },
   });
+
+  console.log({email, user})
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "User not found");
   }

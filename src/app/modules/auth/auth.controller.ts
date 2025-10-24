@@ -2,6 +2,10 @@ import { Request, Response } from "express";
 import catchAsync from "../../shared/catchAsync";
 import sendResponse from "../../shared/sendResponse";
 import { AuthService } from "./auth.service";
+import { IJWTPayload } from "../../types/common";
+import { UserService } from "../user/user.service";
+import ApiError from "../../errors/ApiError";
+import httpStatus from "http-status";
 
 const login = catchAsync(async (req: Request, res: Response) => {
   const result = await AuthService.login(req.body);
@@ -57,7 +61,54 @@ const register = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const logout = catchAsync(async (req: Request, res: Response) => {
+  const accessToken = req.cookies.accessToken;
+
+  res.clearCookie("accessToken", {
+    secure: true,
+    httpOnly: true,
+    sameSite: "none",
+  });
+  res.clearCookie("refreshToken", {
+    secure: true,
+    httpOnly: true,
+    sameSite: "none",
+  });
+
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: "User logged out successfully!",
+    data: {
+      accessToken,
+    },
+  });
+});
+
+const me = catchAsync(
+  async (req: Request & { user?: IJWTPayload }, res: Response) => {
+    const userData = req.user;
+    console.log({ userData });
+    const user = await UserService.getByEmail(userData?.email || "");
+
+    if (!user) {
+      throw new ApiError(httpStatus.UNAUTHORIZED, "Unauthorized User");
+    }
+
+    const { password, ...rest } = user;
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Profile retrieval successfully",
+      data: rest,
+    });
+  }
+);
+
 export const AuthController = {
   login,
   register,
+  logout,
+  me,
 };

@@ -49,15 +49,26 @@ const getAll = async (
   }
 
   if (Object.keys(filterData).length > 0) {
-    andConditions.push({
-      AND: Object.keys(filterData).map((key) => {
+    const filterConditions = Object.keys(filterData).map((key) => {
+      const value = (filterData as any)[key];
+
+      // if comma-separated, split and use OR condition
+      if (typeof value === "string" && value.includes(",")) {
+        const values = value.split(",").map((v) => v.trim());
         return {
-          [key]: {
-            equals: (filterData as any)[key],
-          },
+          OR: values.map((v) => ({
+            [key]: { equals: v },
+          })),
         };
-      }),
+      }
+
+      // normal single value
+      return {
+        [key]: { equals: value },
+      };
     });
+
+    andConditions.push({ AND: filterConditions });
   }
   andConditions.push({
     userId: {
@@ -137,6 +148,8 @@ const updateOne = async (
         updatableExpenseFields.includes(key) && value !== undefined
     )
   );
+
+  console.log({data})
 
   if (data.type === "EXPENSE" && data.amount && Number(data.amount) > 5000) {
     (data as any).isLarge = true;
