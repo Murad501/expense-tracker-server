@@ -77,8 +77,47 @@ const summary = catchAsync(
   }
 );
 
+const updateOne = catchAsync(
+  async (req: Request & { user?: IJWTPayload }, res: Response) => {
+    const userData = req.user;
+    const user = await UserService.getByEmail(userData?.email || "");
+    if (!user) {
+      throw new ApiError(httpStatus.UNAUTHORIZED, "Unauthorized User");
+    }
+    const expenseId = Number(req.params.id);
+
+    const result = await ExpenseService.updateOne(req.body, expenseId, user.id);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Expense updated successfully",
+      data: result,
+    });
+  }
+);
+
+const deleteOne = catchAsync(
+  async (req: Request & { user?: IJWTPayload }, res: Response) => {
+    const userData = req.user;
+    const user = await UserService.getByEmail(userData?.email || "");
+    if (!user) {
+      throw new ApiError(httpStatus.UNAUTHORIZED, "Unauthorized User");
+    }
+    const expenseId = Number(req.params.id);
+    const result = await ExpenseService.deleteOne(expenseId, user.id);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Expense deleted successfully",
+      data: result,
+    });
+  }
+);
+
 export const ExpenseController = {
   getAll,
   create,
   summary,
+  updateOne,
+  deleteOne,
 };
