@@ -149,7 +149,6 @@ const updateOne = async (
     )
   );
 
-  console.log({data})
 
   if (data.type === "EXPENSE" && data.amount && Number(data.amount) > 5000) {
     (data as any).isLarge = true;

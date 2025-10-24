@@ -88,7 +88,6 @@ const logout = catchAsync(async (req: Request, res: Response) => {
 const me = catchAsync(
   async (req: Request & { user?: IJWTPayload }, res: Response) => {
     const userData = req.user;
-    console.log({ userData });
     const user = await UserService.getByEmail(userData?.email || "");
 
     if (!user) {
