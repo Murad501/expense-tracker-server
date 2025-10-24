@@ -135,6 +135,7 @@ const deleteOne = async (id: number, userId: number) => {
 };
 const updateOne = async (
   payload: {
+    title?: string;
     amount?: number;
     type?: IExpenseType;
     note?: string;

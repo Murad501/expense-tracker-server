@@ -1,4 +1,4 @@
-export const expenseSearchableFields: string[] = ['name', 'email'];
+export const expenseSearchableFields: string[] = ['title', 'note'];
 
 export const expenseFilterableFields: string[] = [
     'searchTerm',
